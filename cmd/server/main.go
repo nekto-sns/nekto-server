@@ -7,11 +7,13 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/nekto-sns/nekto-server/app/handler"
+	"github.com/nekto-sns/nekto-server/app/config"
 )
 
 func main() {
+	cfg := config.Load()
 	r := chi.NewRouter()
 	r.Get("/hello", handler.Hello)
-	fmt.Println("Server is running on :8080")
-	http.ListenAndServe(":8080", r)
+	fmt.Println("Server is running on" + cfg.Port)
+	http.ListenAndServe(cfg.Port, r)
 }
