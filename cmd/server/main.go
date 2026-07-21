@@ -26,6 +26,11 @@ func main() {
 		log.Fatalf("%v", err)
 	}
 
+	err = database.RunMigrations(ctx, dbPool)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
 	r := chi.NewRouter()
 	r.Get("/hello", handler.Hello)
 

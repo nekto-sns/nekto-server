@@ -12,7 +12,6 @@ func NewPool(ctx context.Context, dbURL string) (*pgxpool.Pool, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create DB pool: %v\n", err)
 	}
-	defer pool.Close()
 
 	err = pool.Ping(ctx)
 	if err != nil {
