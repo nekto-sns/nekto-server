@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"os"
+	"log/slog"
 	"time"
 	"context"
 
@@ -12,10 +12,13 @@ import (
 	"github.com/nekto-sns/nekto-server/app/handler"
 	"github.com/nekto-sns/nekto-server/app/config"
 	"github.com/nekto-sns/nekto-server/app/shared/database"
+	"github.com/nekto-sns/nekto-server/app/shared/logger"
 )
 
 func main() {
 	cfg := config.Load()
+
+	logger.Setup(cfg.IsProd)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3 * time.Second)
 	defer cancel()
@@ -23,17 +26,19 @@ func main() {
 	dbPool, err := database.NewPool(ctx, cfg.DBUrl)
 	defer dbPool.Close()
 	if err != nil {
-		log.Fatalf("%v", err)
+		slog.Error("Failed to connect to DB", "error", err)
+		os.Exit(1)
 	}
 
 	err = database.RunMigrations(ctx, dbPool)
 	if err != nil {
-		log.Fatalf("%v", err)
+		slog.Error("DB migration failed", "error", err)
+		os.Exit(1)
 	}
 
 	r := chi.NewRouter()
 	r.Get("/hello", handler.Hello)
 
-	fmt.Println("Server is running on " + cfg.Port)
+	slog.Info("Server is running", "port", cfg.Port)
 	http.ListenAndServe(cfg.Port, r)
 }

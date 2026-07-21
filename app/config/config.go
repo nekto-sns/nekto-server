@@ -10,8 +10,9 @@ import (
 )
 
 type Config struct{
-	Port  string `env:"PORT" envDefault:"8080"`
-	DBUrl string `env:"DB_URL,required,notEmpty"`
+	Port   string `env:"PORT" envDefault:"8080"`
+	DBUrl  string `env:"DB_URL,required,notEmpty"`
+	IsProd bool   `env:"IS_PROD" envDefault:false`
 }
 
 func Load() (*Config) {
