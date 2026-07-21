@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/jackc/pgx/v6"
+	"github.com/jackc/pgx/v5"
 )
 
 //go:embed migrations/*.sql

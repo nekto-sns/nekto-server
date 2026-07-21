@@ -11,21 +11,21 @@ import (
 
 type Config struct{
 	Port  string `env:"PORT" envDefault:"8080"`
-	DBUrl string `env:"DB_URL required notEmpty"`
+	DBUrl string `env:"DB_URL,required,notEmpty"`
 }
 
 func Load() (*Config) {
-	envErr := godotenv.Load()
-	if envErr != nil {
-		if errors.Is(envErr, os.ErrNotExist) {
+	err := godotenv.Load()
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
 			log.Println(".env file not found, reading from system environment variables")
 		} else {
-			log.Fatalf("Failed to load .env: %v", envErr)
+			log.Fatalf("Failed to load .env: %v", err)
 		}
 	}
 	var cfg Config
-	cfgErr := env.Parse(&cfg)
-	if cfgErr != nil {
+	err = env.Parse(&cfg)
+	if err != nil {
 		log.Fatalf("Failed to load config: %v")
 	}
 
