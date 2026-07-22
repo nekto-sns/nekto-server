@@ -6,8 +6,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
+	"github.com/labstack/echo/v5"
 
 	"github.com/nekto-sns/nekto-server/app/model"
 )
@@ -26,8 +25,8 @@ func NewUserHandler(svc userService) (*userHandler) {
 	}
 }
 
-func (h *userHandler) ByName(w http.ResponseWriter, r *http.Request) {
-	name := chi.URLParam(r, "name")
+func (h *userHandler) ByName(c *echo.Context) error {
+	name := c.Param("name")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3 * time.Second)
 	defer cancel()
@@ -35,12 +34,12 @@ func (h *userHandler) ByName(w http.ResponseWriter, r *http.Request) {
 	user, err := h.svc.ByName(ctx, name)
 	if err != nil {
 		if errors.Is(err, model.ErrNotFound) {
-			http.Error(w, "User not found", http.StatusNotFound)
-			return
+			return c.JSON(http.StatusNotFound,
+				      map[string]any{ "code": "NotFound", "msg": "User not found" })
 		}
 		slog.Error("Request processing failed", "err", err)
-		http.Error(w, "Internal Server Error", http.StatusBadRequest)
-		return
+		return c.JSON(http.StatusInternalServerError,
+			      map[string]any{ "code": "InternalServerError", "msg": "Error" })
 	}
-	render.JSON(w, r, user)
+	return c.JSON(http.StatusOK, user)
 }

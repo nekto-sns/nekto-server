@@ -6,8 +6,7 @@ import (
 	"time"
 	"context"
 
-	"net/http"
-	"github.com/go-chi/chi/v5"
+	"github.com/labstack/echo/v5"
 
 	"github.com/nekto-sns/nekto-server/app/handler"
 	"github.com/nekto-sns/nekto-server/app/repository"
@@ -43,10 +42,8 @@ func main() {
 	userSvc  := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userSvc)
 
+	e := echo.New()
+	e.GET("/:name", userHandler.ByName)
 
-	r := chi.NewRouter()
-	r.Get("/{name}", userHandler.ByName)
-
-	slog.Info("Server is running", "port", cfg.Port)
-	http.ListenAndServe(cfg.Port, r)
+	e.Start(cfg.Port)
 }
