@@ -10,6 +10,9 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/nekto-sns/nekto-server/app/handler"
+	"github.com/nekto-sns/nekto-server/app/repository"
+	"github.com/nekto-sns/nekto-server/app/service"
+
 	"github.com/nekto-sns/nekto-server/app/config"
 	"github.com/nekto-sns/nekto-server/app/shared/database"
 	"github.com/nekto-sns/nekto-server/app/shared/logger"
@@ -26,7 +29,7 @@ func main() {
 	dbPool, err := database.NewPool(ctx, cfg.DBUrl)
 	defer dbPool.Close()
 	if err != nil {
-		slog.Error("Failed to connect to DB", "error", err)
+		slog.Error("Server startup failed", "error", err)
 		os.Exit(1)
 	}
 
@@ -36,8 +39,13 @@ func main() {
 		os.Exit(1)
 	}
 
+	userRepo := repository.NewUserRepository(dbPool)
+	userSvc  := service.NewUserService(userRepo)
+	userHandler := handler.NewUserHandler(userSvc)
+
+
 	r := chi.NewRouter()
-	r.Get("/hello", handler.Hello)
+	r.Get("/{name}", userHandler.ByName)
 
 	slog.Info("Server is running", "port", cfg.Port)
 	http.ListenAndServe(cfg.Port, r)

@@ -9,4 +9,5 @@ func (e Error) Error() string {
 const (
 	ErrNotFound      Error = "resource not found"
 	ErrAlreadyExists Error = "resource already exists"
+	ErrInternal      Error = "internal server error"
 )
